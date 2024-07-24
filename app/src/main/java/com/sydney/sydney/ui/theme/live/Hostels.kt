@@ -1,7 +1,9 @@
 @file:Suppress("NAME_SHADOWING")
 package com.sydney.sydney.ui.theme.live
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -218,7 +221,7 @@ private fun addHostelToFirestore(
 
     val hostelId = UUID.randomUUID().toString()
 
-    val firestore = Firebase.firestore
+    val firestore = FirebaseFirestore.getInstance()
     val hostelData = hashMapOf(
         "name" to hostelName,
         "description" to hostelDescription,
@@ -229,6 +232,7 @@ private fun addHostelToFirestore(
     firestore.collection("hostels").document(hostelId)
         .set(hostelData)
         .addOnSuccessListener {
+           Log.d(TAG,"DocumentSnapshot added with ID:$hostelId")
             uploadImageToStorage(hostelId, hostelImageUri) { imageUrl ->
                 if (imageUrl != null) {
                     firestore.collection("hostels").document(hostelId)
@@ -279,6 +283,6 @@ private fun uploadImageToStorage(hostelId: String, imageUri: Uri, callback: (Str
         }
     }.addOnFailureListener { e ->
         // Handle error uploading image
-        callback(null)
+    callback(null)
     }
 }

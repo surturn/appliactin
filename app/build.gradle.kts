@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+
+
 }
 
 android {
@@ -55,7 +57,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation (libs.androidx.material)
     implementation(libs.coil.compose)
-
+    implementation("com.google.firebase:firebase-bom:32.2.3")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation ("com.google.firebase:firebase-storage-ktx")
     implementation (libs.androidx.lifecycle.livedata.ktx)
 
     implementation(libs.androidx.core.ktx)

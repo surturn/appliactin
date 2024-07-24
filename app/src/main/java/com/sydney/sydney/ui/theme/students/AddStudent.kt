@@ -7,6 +7,7 @@ import android.app.ProgressDialog
 import android.content.Context
 import com.sydney.sydney.R
 import android.net.Uri
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
@@ -64,6 +65,7 @@ import coil.compose.rememberAsyncImagePainter
 
 import coil.request.ImageRequest
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.sydney.sydney.navigation.ROUTE_DASHBOARD
@@ -366,7 +368,6 @@ fun uploadImageToFirebaseStorage(
     location: String,
     phone: String,
     context: Context
-
 ) {
     val storageRef = FirebaseStorage.getInstance().reference
     val imageRef = storageRef.child("images/${UUID.randomUUID()}")
@@ -375,13 +376,16 @@ fun uploadImageToFirebaseStorage(
     uploadTask.continueWithTask { task ->
         if (!task.isSuccessful) {
             task.exception?.let {
+                Log.e("UploadError", "Error uploading image", it)
                 throw it
             }
         }
         imageRef.downloadUrl
     }.addOnCompleteListener { task ->
+        progressDialog?.dismiss()
         if (task.isSuccessful) {
             val downloadUri = task.result
+            Log.d("UploadSuccess", "Image uploaded successfully: $downloadUri")
             saveToFirestore(
                 downloadUri.toString(),
                 studentName,
@@ -389,30 +393,14 @@ fun uploadImageToFirebaseStorage(
                 studentEmail,
                 location,
                 phone,
-                context,
-
-
+                context
             )
-
         } else {
-
-            progressDialog?.dismiss()
-
-            AlertDialog.Builder(context)
-                .setTitle("Error")
-                .setMessage("Failed to upload image: ${task.exception?.message}")
-                .setPositiveButton("OK") { _, _ ->
-                    // Optional: Add actions when OK is clicked
-
-
-                }
-                .show()
-
-
+            Log.e("UploadError", "Failed to upload image", task.exception)
+            showErrorDialog(context, "Failed to upload image: ${task.exception?.message}")
         }
     }
 }
-
 
 fun saveToFirestore(
     imageUrl: String,
@@ -421,14 +409,9 @@ fun saveToFirestore(
     studentEmail: String,
     location: String,
     phone: String,
-    context: Context,
-
-
-
+    context: Context
 ) {
-
-
-    val db = Firebase.firestore
+    val db = FirebaseFirestore.getInstance()
     val imageInfo = hashMapOf(
         "imageUrl" to imageUrl,
         "studentName" to studentName,
@@ -436,58 +419,36 @@ fun saveToFirestore(
         "studentEmail" to studentEmail,
         "location" to location,
         "phone" to phone
-
-
-
     )
-
 
     db.collection("Students")
         .add(imageInfo)
         .addOnSuccessListener { documentReference ->
-
-            progressDialog?.dismiss()
-
-            // Show success dialog
-            val dialogBuilder = AlertDialog.Builder(context)
-            dialogBuilder.setTitle("Success")
-                .setMessage("Data saved successfully!")
-                .setPositiveButton("OK") { _, _ ->
-                    // Optional: Add actions when OK is clicked
-                }
-                .setCancelable(false)
-
-            val alertDialog = dialogBuilder.create()
-            alertDialog.show()
-
-            // Customize the dialog style (optional)
-            val alertDialogStyle = alertDialog.window?.attributes
-            alertDialog.window?.attributes = alertDialogStyle
+            Log.d("FirestoreSuccess", "DocumentSnapshot added with ID: ${documentReference.id}")
+            showSuccessDialog(context, "Data saved successfully!")
         }
-        .addOnFailureListener {
-
-            progressDialog?.dismiss()
-
-
-            AlertDialog.Builder(context)
-                .setTitle("Error")
-                .setMessage("Failed to save data")
-                .setPositiveButton("OK") { _, _ ->
-                    // Optional: Add actions when OK is clicked
-
-
-
-                }
-                .show()
-
-
+        .addOnFailureListener { e ->
+            Log.e("FirestoreError", "Failed to save data", e)
+            showErrorDialog(context, "Failed to save data: ${e.message}")
         }
 }
 
+fun showErrorDialog(context: Context, message: String) {
+    AlertDialog.Builder(context)
+        .setTitle("Error")
+        .setMessage(message)
+        .setPositiveButton("OK", null)
+        .show()
+}
 
-
-
-
+fun showSuccessDialog(context: Context, message: String) {
+    AlertDialog.Builder(context)
+        .setTitle("Success")
+        .setMessage(message)
+        .setPositiveButton("OK", null)
+        .setCancelable(false)
+        .show()
+}
 
 @Preview(showBackground = true)
 @Composable

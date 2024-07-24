@@ -1,12 +1,14 @@
 package com.sydney.sydney.ui.theme.dashboard
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,6 +27,8 @@ fun ProfileScreen(userViewModel: UserViewModel = viewModel(),navController: NavC
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .background(Color.Black)
+
     ) {
         Text(text = "Name: $name", modifier = Modifier.padding(bottom = 8.dp))
         Text(text = "Email: $email", modifier = Modifier.padding(bottom = 8.dp))

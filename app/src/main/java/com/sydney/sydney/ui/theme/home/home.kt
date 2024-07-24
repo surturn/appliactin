@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.sydney.sydney.R
 import com.sydney.sydney.navigation.ROUTE_ADD_HOSTELS
+import com.sydney.sydney.navigation.ROUTE_DASHBOARD
 import com.sydney.sydney.navigation.ROUTE_LOGIN
 import com.sydney.sydney.navigation.ROUTE_PROFILE
 import com.sydney.sydney.navigation.ROUTE_REGISTER
@@ -62,7 +63,7 @@ fun HomeScreen(navController: NavHostController) {
                 },
                 actions = {
                     IconButton(onClick = {
-                        navController.navigate(ROUTE_PROFILE)
+                        navController.navigate(ROUTE_DASHBOARD)
                     }) {
                         Icon(
                             imageVector = Icons.Filled.AccountCircle,
